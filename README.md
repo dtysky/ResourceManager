@@ -50,7 +50,7 @@ Main class for managing resources.
 |loadDone|boolean|If the loading was done.|
 
 ```ts
-import {IResourceEntry}, ResourceManager from 'resource-manager';
+import {IResourceEntry}, ResourceManager from 'res-manager';
 
 const resourceManager = new ResourceManager();
 const resources: IResourceEntry = [
