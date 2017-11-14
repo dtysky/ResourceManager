@@ -7,6 +7,10 @@ A class for better loading and managing resources.
 [You can view the live demo here.](http://resource-manager.dtysky.moe)
 ## Usage
 
+```shell
+npm install res-manager --save
+```
+
 ### IResourceEntry
 
 This interface is used for describing a resource.
