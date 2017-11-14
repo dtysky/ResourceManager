@@ -13,8 +13,11 @@ import Radio from 'semantic-ui-react/dist/commonjs/addons/Radio';
 import Select from 'semantic-ui-react/dist/commonjs/addons/Select';
 import Table from 'semantic-ui-react/dist/commonjs/collections/Table';
 import Form from 'semantic-ui-react/dist/commonjs/collections/Form';
+import Progress from 'semantic-ui-react/dist/commonjs/modules/Progress';
 
 import ResourceManager, {IResourceEntry} from '../index';
+import './base.scss';
+import { MouseEvent } from 'react';
 
 interface IPropTypes {
 
@@ -23,13 +26,37 @@ interface IStateTypes {
   timeout: number;
   resources: IResourceEntry[];
   message: string;
+  percent: number;
 }
 
 class Demo extends React.Component<IPropTypes, IStateTypes> {
   public state: IStateTypes = {
     timeout: 0,
-    resources: [],
-    message: ''
+    resources: [
+      {
+        preload: true,
+        name: 'H光大小姐',
+        src: 'http://oekm6wrcq.bkt.clouddn.com/hh.png',
+        type: 'image',
+        weight: 1
+      },
+      {
+        preload: true,
+        name: '秦皇岛',
+        src: 'http://oekm6wrcq.bkt.clouddn.com/秦皇岛.mp3',
+        type: 'audio',
+        weight: 1
+      },
+      {
+        preload: true,
+        name: 'bml2017',
+        src: 'http://oekm6wrcq.bkt.clouddn.com/bml-h5.mp4',
+        type: 'video',
+        weight: 1
+      }
+    ],
+    message: 'wait',
+    percent: 0
   };
   private resourceManager: ResourceManager;
 
@@ -66,12 +93,17 @@ class Demo extends React.Component<IPropTypes, IStateTypes> {
     this.forceUpdate();
   }
 
-  private handleLoad = () => {
+  private handleLoad = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    this.resourceManager.init(this.state.resources);
     this.resourceManager.load();
   }
 
   private handleProgress = (progress: number, current: string) => {
-    this.setState({message: `Loading...current: ${current}, progress: ${progress * 100}%`})
+    this.setState({
+      percent: progress * 100,
+      message: `Loading...current: ${current}, progress: ${(progress * 100).toFixed(2)}%`
+    });
   }
 
   private handleError = (error: Error, current: string) => {
@@ -81,42 +113,52 @@ class Demo extends React.Component<IPropTypes, IStateTypes> {
   public render() {
     return (
       <div className={'root'}>
-        <Card>
-          <Card.Content>
-            <Card.Header>
-              Actions
-            </Card.Header>
-            <Card.Meta>
-              "timeout" is a parameter for defining the max duration of preloading,
-              if loading is overtime, resource-manager will stop this loading forcibly. <br />
-              After adding resource, click "Load" button to preload them.
-            </Card.Meta>
-            <Card.Description>
-              {this.renderActions()}
-            </Card.Description>
-          </Card.Content>
-        </Card>
-        <Card>
-          <Card.Content>
-            <Card.Header>
-              Resources
-            </Card.Header>
-            <Card.Meta>
-              Add your own resources and configure them here. <br />
-              "name" is the name of resource,
-              "src" is its url,
-              "type" is its file type,
-              "preload" is a switch for preloading,
-              "weight" is the weight of it when preloading.
-            </Card.Meta>
-            <Card.Description>
-              <Button onClick={this.handleAddResource}>
-                Add resource
-              </Button>
-              {this.renderTable()}
-            </Card.Description>
-          </Card.Content>
-        </Card>
+        <div className={'topbar'}>
+          <a
+            href={'https://github.com/dtysky/ResourceManager'}
+            target={'_blank'}
+          >
+            View on Github
+          </a>
+        </div>
+        <div className={'body'}>
+          <Card>
+            <Card.Content>
+              <Card.Header>
+                Actions
+              </Card.Header>
+              <Card.Meta>
+                "timeout" is a parameter for defining the max duration of preloading, set it to 0 to disable;
+                if loading is overtime, resource-manager will stop this loading forcibly. <br />
+                After adding resource, click "Load" button to preload them.
+              </Card.Meta>
+              <Card.Description>
+                {this.renderActions()}
+              </Card.Description>
+            </Card.Content>
+          </Card>
+          <Card>
+            <Card.Content>
+              <Card.Header>
+                Resources
+              </Card.Header>
+              <Card.Meta>
+                Add your own resources and configure them here. <br />
+                "name" is the name of resource,
+                "src" is its url,
+                "type" is its file type,
+                "preload" is a switch for preloading,
+                "weight" is the weight of it when preloading.
+              </Card.Meta>
+              <Card.Description>
+                <Button onClick={this.handleAddResource}>
+                  Add resource
+                </Button>
+                {this.renderTable()}
+              </Card.Description>
+            </Card.Content>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -124,7 +166,8 @@ class Demo extends React.Component<IPropTypes, IStateTypes> {
   private renderActions() {
     const {
       timeout,
-      message
+      message,
+      percent
     } = this.state;
 
     return (
@@ -141,21 +184,18 @@ class Demo extends React.Component<IPropTypes, IStateTypes> {
             }}
           />
         </Form.Field>
-        <Button onClick={this.handleLoad}>
-          Load
-        </Button>
         <Form.Field>
           <Label pointing={'below'}>
             {message}
           </Label>
-          <Input
-            type={'number'}
-            value={timeout}
-            onChange={(e, data) => {
-              this.setState({timeout: parseFloat(data.value)});
-            }}
+          <Progress
+            percent={percent}
+            color={'pink'}
           />
         </Form.Field>
+        <Button onClick={this.handleLoad}>
+          Load
+        </Button>
       </Form>
     );
   }
@@ -166,7 +206,7 @@ class Demo extends React.Component<IPropTypes, IStateTypes> {
     } = this.state;
 
     return (
-      <Table celled className={'root-table'}>
+      <Table celled>
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>name</Table.HeaderCell>
@@ -194,36 +234,48 @@ class Demo extends React.Component<IPropTypes, IStateTypes> {
     } = item;
 
     return (
-      <Table.Row>
-        <Radio
-          toggle
-          checked={preload}
-          onChange={() => this.handleChangeItem(index, 'preload', !preload)}
-        />
-        <Input
-          value={name}
-          onChange={(e, data) => this.handleChangeItem(index, 'name', data.value)}
-        />
-        <Input
-          value={src}
-          onChange={(e, data) => this.handleChangeItem(index, 'src', data.value)}
-        />
-        <Select
-          value={type}
-          options={[
-            {key: 'image', value: 'image'},
-            {key: 'video', value: 'video'},
-            {key: 'audio', value: 'audio'}
-          ]}
-        />
-        <Input
-          type={'number'}
-          value={weight}
-          onChange={(e, data) => this.handleChangeItem(index, 'weight', parseFloat(data.value))}
-        />
-        <Button onClick={() => this.handleDelete(index)}>
-          Delete
-        </Button>
+      <Table.Row key={index}>
+        <Table.Cell>
+          <Input
+            value={name}
+            onChange={(e, data) => this.handleChangeItem(index, 'name', data.value)}
+          />
+        </Table.Cell>
+        <Table.Cell>
+          <Input
+            value={src}
+            onChange={(e, data) => this.handleChangeItem(index, 'src', data.value)}
+          />
+        </Table.Cell>
+        <Table.Cell>
+          <Select
+            value={type}
+            options={[
+              {key: 'image', value: 'image', text: 'image'},
+              {key: 'video', value: 'video', text: 'video'},
+              {key: 'audio', value: 'audio', text: 'audio'}
+            ]}
+          />
+        </Table.Cell>
+        <Table.Cell>
+          <Radio
+            toggle
+            checked={preload}
+            onChange={() => this.handleChangeItem(index, 'preload', !preload)}
+          />
+        </Table.Cell>
+        <Table.Cell>
+          <Input
+            type={'number'}
+            value={weight}
+            onChange={(e, data) => this.handleChangeItem(index, 'weight', parseFloat(data.value))}
+          />
+        </Table.Cell>
+        <Table.Cell>
+          <Button onClick={() => this.handleDelete(index)}>
+            Delete
+          </Button>
+        </Table.Cell>
       </Table.Row>
     );
   }
