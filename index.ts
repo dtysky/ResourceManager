@@ -20,12 +20,13 @@ export interface IResourceElement extends IResourceEntry {
 export default class ResourceManager {
   private resourceList: IResourceEntry[] = [];
   private resources: {[name: string]: IResourceElement} = {};
-  private onProgress = (progress: number) => {};
+  private onProgress = (progress: number, current: string) => {};
+  private onError = (error: Error, current: string) => {};
   private length = 0;
   private timeout = 0;
   private loaded = false;
 
-  constructor(list: IResourceEntry[], timeout?: number) {
+  public init = (list: IResourceEntry[], timeout?: number) => {
     this.resourceList = list;
     this.timeout = timeout || 0;
     list.forEach(item => {
@@ -35,9 +36,16 @@ export default class ResourceManager {
     });
   }
 
-  public load = (onProgress?: (progress: number) => void) => {
+  public load = (
+    onProgress?: (progress: number, string: string) => void,
+    onError?: (error: Error, current: string) => void
+  ) => {
     if (onProgress) {
       this.onProgress = onProgress;
+    }
+
+    if (onError) {
+      this.onError = onError;
     }
 
     this.resourceList.forEach(item => {
@@ -52,7 +60,7 @@ export default class ResourceManager {
         () => {
           if (!this.loaded) {
             this.loaded = true;
-            this.onProgress(1);
+            this.onProgress(1, null);
           }
         },
         this.timeout
@@ -77,10 +85,13 @@ export default class ResourceManager {
       element.onload = () => {
         this.resources[name].progress = 1;
         if (!this.loaded) {
-          this.onProgress(this.progress);
+          this.onProgress(this.progress, name);
         } else {
-          this.onProgress(1);
+          this.onProgress(1, name);
         }
+      };
+      element.onerror = (errorEvent: ErrorEvent) => {
+        this.onError(errorEvent.error, name);
       };
       element.src = this.resources[name].src;
     }
@@ -108,6 +119,9 @@ export default class ResourceManager {
 
     if (preload) {
       element.addEventListener('canplaythrough', this.handleMediaProgress(name));
+      element.onerror = (errorEvent: ErrorEvent) => {
+        this.onError(errorEvent.error, name);
+      };
       element.muted = true;
       element.preload = 'auto';
       element.src = this.resources[name].src;
@@ -133,14 +147,13 @@ export default class ResourceManager {
         this.resources[name].progress = buffered / element.duration;
       }
       if (!this.loaded) {
-        this.onProgress(this.progress);
+        this.onProgress(this.progress, name);
       } else {
-        this.onProgress(1);
+        this.onProgress(1, name);
       }
 
       element.currentTime = buffered;
       if (this.loaded || end) {
-        element.removeEventListener('canplaythrough', this.handleMediaProgress(name));
         element.pause();
         document.body.removeChild(this.resources[name].element);
         this.resources[name].element = null;
@@ -167,15 +180,27 @@ export default class ResourceManager {
     return result;
   }
 
-  public get loadDone() {
-    return this.loaded;
-  }
-
   public getSrc = (name: string) => {
     return this.resources[name].src;
   }
 
-  public registerOnProgress = (onProgress: (progress: number) => void) => {
+  public registerOnProgress = (onProgress: (progress: number, string: string) => void) => {
     this.onProgress = onProgress;
+  }
+
+  public registerOnError = (onError: (error: Error, current: string) => void) => {
+    this.onError = onError;
+  }
+
+  public get loadDone() {
+    return this.loaded;
+  }
+
+  public clear() {
+    this.resourceList = [];
+    this.resources = {};
+    this.onProgress = () => {};
+    this.length = 0;
+    this.loaded = false;
   }
 }

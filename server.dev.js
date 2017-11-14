@@ -34,11 +34,11 @@ app.use(webpackDevMiddleware(compiler, {
 app.use(webpackHotMiddleware(compiler));
 
 app.use('/',
-  express.static(`${__dirname}/src`)
+  express.static(`${__dirname}/demo`)
 );
 
 app.get('/', (req, res) => {
-  res.sendFile(`${__dirname}/index.html`);
+  res.sendFile(`${__dirname}/demo/index.html`);
 });
 
 app.listen(port, function(error) {
