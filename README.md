@@ -4,6 +4,7 @@ A class for better loading and managing resources.
 
 ## Demo
 
+[You can view the live demo here.](http://resource-manager.dtysky.moe)
 ## Usage
 
 ### IResourceEntry

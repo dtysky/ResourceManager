@@ -2,4 +2,5 @@
 .vscode
 node_modules
 .DS_Store
-dist
+demo/main.bundle.css
+demo/main.bundle.js

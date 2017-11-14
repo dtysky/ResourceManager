@@ -15,10 +15,7 @@ module.exports = {
 
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
-    extensions: [".ts", ".tsx", ".js"],
-    alias: {
-      '@woodman': '../flash/web/woodman/dist'
-    }
+    extensions: [".ts", ".tsx", ".js"]
   },
 
   stats: {
