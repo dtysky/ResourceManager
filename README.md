@@ -84,6 +84,7 @@ resourceManager.load(
     console.log(error, progress);
   }
 );
+const imgSrc = resourceManager.getSrc('H光大小姐');
 ```
 
 ## Contribute
