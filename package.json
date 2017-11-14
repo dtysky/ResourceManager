@@ -6,7 +6,7 @@
   "types": "index.d.ts",
   "scripts": {
     "dev": "node server.dev.js",
-    "build": "./node_modules/.bin/tsc ./index.tsx --jsx react -d -outDir ./",
+    "build": "./node_modules/.bin/tsc ./index.ts --target es5 --jsx react -d -outDir ./",
     "build-demo": ""
   },
   "keywords": [
@@ -28,8 +28,8 @@
   ],
   "license": "MIT",
   "files": [
-    "src",
-    "dist",
+    "index.js",
+    "index.d.ts",
     "README.md"
   ],
   "bugs": {

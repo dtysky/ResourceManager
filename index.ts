@@ -27,6 +27,8 @@ export default class ResourceManager {
   private loaded = false;
 
   public init = (list: IResourceEntry[], timeout?: number) => {
+    this.length = 0;
+    this.loaded = false;
     this.resourceList = list;
     this.timeout = timeout || 0;
     list.forEach(item => {
@@ -196,10 +198,11 @@ export default class ResourceManager {
     return this.loaded;
   }
 
-  public clear() {
+  public reset() {
     this.resourceList = [];
     this.resources = {};
     this.onProgress = () => {};
+    this.onError = () => {};
     this.length = 0;
     this.loaded = false;
   }
