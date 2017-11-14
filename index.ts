@@ -157,7 +157,7 @@ export default class ResourceManager {
       element.currentTime = buffered;
       if (this.loaded || end) {
         element.pause();
-        document.body.removeChild(this.resources[name].element);
+        document.body.removeChild(element);
         this.resources[name].element = null;
       } else {
         element.play();
@@ -200,6 +200,12 @@ export default class ResourceManager {
 
   public reset() {
     this.resourceList = [];
+    Object.keys(this.resources).forEach(name => {
+      if (this.resources[name].element && this.resources[name].type !== 'image') {
+        document.body.removeChild(this.resources[name].element);
+      }
+      this.resources[name].element = null;
+    });
     this.resources = {};
     this.onProgress = () => {};
     this.onError = () => {};
