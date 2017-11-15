@@ -45,14 +45,14 @@ class Demo extends React.Component<IPropTypes, IStateTypes> {
         name: '秦皇岛',
         src: 'http://oekm6wrcq.bkt.clouddn.com/秦皇岛.mp3',
         type: 'audio',
-        weight: 1
+        weight: 20
       },
       {
         preload: true,
         name: 'bml2017',
         src: 'http://oekm6wrcq.bkt.clouddn.com/bml-h5.mp4',
         type: 'video',
-        weight: 1
+        weight: 2
       }
     ],
     message: 'wait',
