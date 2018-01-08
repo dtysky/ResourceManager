@@ -22,6 +22,7 @@ export default class ResourceManager {
   private resources: {[name: string]: IResourceElement} = {};
   private onProgress = (progress: number, current: string) => {};
   private onError = (error: Error, current: string) => {};
+  private onComplete = () => {};
   private length = 0;
   private timeout = 0;
   private loaded = false;
@@ -40,10 +41,15 @@ export default class ResourceManager {
 
   public load = (
     onProgress?: (progress: number, string: string) => void,
+    onComplete?: () => void,
     onError?: (error: Error, current: string) => void
   ) => {
     if (onProgress) {
       this.onProgress = onProgress;
+    }
+
+    if (onComplete) {
+      this.onComplete = onComplete;
     }
 
     if (onError) {
@@ -152,6 +158,7 @@ export default class ResourceManager {
         this.onProgress(this.progress, name);
       } else {
         this.onProgress(1, name);
+        this.onComplete();
       }
 
       element.currentTime = buffered;
@@ -194,6 +201,10 @@ export default class ResourceManager {
     this.onError = onError;
   }
 
+  public registerOnComplete = (onComplete: () => void) => {
+    this.onComplete = onComplete;
+  }
+
   public get loadDone() {
     return this.loaded;
   }
@@ -209,6 +220,7 @@ export default class ResourceManager {
     this.resources = {};
     this.onProgress = () => {};
     this.onError = () => {};
+    this.onComplete = () => {};
     this.length = 0;
     this.loaded = false;
   }

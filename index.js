@@ -7,6 +7,7 @@ var ResourceManager = /** @class */ (function () {
         this.resources = {};
         this.onProgress = function (progress, current) { };
         this.onError = function (error, current) { };
+        this.onComplete = function () { };
         this.length = 0;
         this.timeout = 0;
         this.loaded = false;
@@ -21,9 +22,12 @@ var ResourceManager = /** @class */ (function () {
                 }
             });
         };
-        this.load = function (onProgress, onError) {
+        this.load = function (onProgress, onComplete, onError) {
             if (onProgress) {
                 _this.onProgress = onProgress;
+            }
+            if (onComplete) {
+                _this.onComplete = onComplete;
             }
             if (onError) {
                 _this.onError = onError;
@@ -122,6 +126,7 @@ var ResourceManager = /** @class */ (function () {
                 }
                 else {
                     _this.onProgress(1, name);
+                    _this.onComplete();
                 }
                 element.currentTime = buffered;
                 if (_this.loaded || end) {
@@ -142,6 +147,9 @@ var ResourceManager = /** @class */ (function () {
         };
         this.registerOnError = function (onError) {
             _this.onError = onError;
+        };
+        this.registerOnComplete = function (onComplete) {
+            _this.onComplete = onComplete;
         };
     }
     Object.defineProperty(ResourceManager.prototype, "progress", {
@@ -185,6 +193,7 @@ var ResourceManager = /** @class */ (function () {
         this.resources = {};
         this.onProgress = function () { };
         this.onError = function () { };
+        this.onComplete = function () { };
         this.length = 0;
         this.loaded = false;
     };
