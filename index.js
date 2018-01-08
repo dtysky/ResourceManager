@@ -17,10 +17,14 @@ var ResourceManager = /** @class */ (function () {
             _this.resourceList = list;
             _this.timeout = timeout || 0;
             list.forEach(function (item) {
+                if (item.preload === undefined) {
+                    item.preload = true;
+                }
                 if (item.preload) {
                     _this.length += item.weight || 1;
                 }
             });
+            return _this;
         };
         this.load = function (onProgress, onComplete, onError) {
             if (onProgress) {
@@ -31,6 +35,12 @@ var ResourceManager = /** @class */ (function () {
             }
             if (onError) {
                 _this.onError = onError;
+            }
+            var realList = _this.resourceList.filter(function (item) { return item.preload; });
+            if (realList.length === 0) {
+                _this.loaded = true;
+                _this.onComplete();
+                return _this;
             }
             _this.resourceList.forEach(function (item) {
                 if (item.type === 'image') {
@@ -45,9 +55,11 @@ var ResourceManager = /** @class */ (function () {
                     if (!_this.loaded) {
                         _this.loaded = true;
                         _this.onProgress(1, null);
+                        _this.onComplete();
                     }
                 }, _this.timeout);
             }
+            return _this;
         };
         this.loadImage = function (resource) {
             var name = resource.name, type = resource.type, src = resource.src, preload = resource.preload, weight = resource.weight;
@@ -64,12 +76,7 @@ var ResourceManager = /** @class */ (function () {
                 var element = _this.resources[name].element;
                 element.onload = function () {
                     _this.resources[name].progress = 1;
-                    if (!_this.loaded) {
-                        _this.onProgress(_this.progress, name);
-                    }
-                    else {
-                        _this.onProgress(1, name);
-                    }
+                    _this.handleOnLoad(name);
                 };
                 element.onerror = function (errorEvent) {
                     _this.onError(errorEvent.error, name);
@@ -121,13 +128,7 @@ var ResourceManager = /** @class */ (function () {
                 else {
                     _this.resources[name].progress = buffered / element.duration;
                 }
-                if (!_this.loaded) {
-                    _this.onProgress(_this.progress, name);
-                }
-                else {
-                    _this.onProgress(1, name);
-                    _this.onComplete();
-                }
+                _this.handleOnLoad(name);
                 element.currentTime = buffered;
                 if (_this.loaded || end) {
                     element.pause();
@@ -139,17 +140,29 @@ var ResourceManager = /** @class */ (function () {
                 }
             }
         }; };
+        this.handleOnLoad = function (name) {
+            if (!_this.loaded) {
+                _this.onProgress(_this.progress, name);
+            }
+            else {
+                _this.onProgress(1, name);
+                _this.onComplete();
+            }
+        };
         this.getSrc = function (name) {
             return _this.resources[name].src;
         };
         this.registerOnProgress = function (onProgress) {
             _this.onProgress = onProgress;
+            return _this;
         };
         this.registerOnError = function (onError) {
             _this.onError = onError;
+            return _this;
         };
         this.registerOnComplete = function (onComplete) {
             _this.onComplete = onComplete;
+            return _this;
         };
     }
     Object.defineProperty(ResourceManager.prototype, "progress", {
@@ -196,6 +209,7 @@ var ResourceManager = /** @class */ (function () {
         this.onComplete = function () { };
         this.length = 0;
         this.loaded = false;
+        return this;
     };
     return ResourceManager;
 }());

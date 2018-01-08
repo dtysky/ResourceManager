@@ -23,16 +23,17 @@ export default class ResourceManager {
     private length;
     private timeout;
     private loaded;
-    init: (list: IResourceEntry[], timeout?: number) => void;
-    load: (onProgress?: (progress: number, string: string) => void, onComplete?: () => void, onError?: (error: Error, current: string) => void) => void;
+    init: (list: IResourceEntry[], timeout?: number) => this;
+    load: (onProgress?: (progress: number, string: string) => void, onComplete?: () => void, onError?: (error: Error, current: string) => void) => this;
     private loadImage;
     private loadMedia;
     private handleMediaProgress;
+    private handleOnLoad;
     readonly progress: number;
     getSrc: (name: string) => string;
-    registerOnProgress: (onProgress: (progress: number, string: string) => void) => void;
-    registerOnError: (onError: (error: Error, current: string) => void) => void;
-    registerOnComplete: (onComplete: () => void) => void;
+    registerOnProgress: (onProgress: (progress: number, string: string) => void) => this;
+    registerOnError: (onError: (error: Error, current: string) => void) => this;
+    registerOnComplete: (onComplete: () => void) => this;
     readonly loadDone: boolean;
-    reset(): void;
+    reset(): this;
 }
