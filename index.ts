@@ -109,6 +109,7 @@ export default class ResourceManager {
         this.handleOnLoad(name);
       };
       element.onerror = (errorEvent: ErrorEvent) => {
+        this.resources[name].progress = 1;
         this.onError(errorEvent.error, name);
       };
       element.src = this.resources[name].src;
@@ -138,6 +139,7 @@ export default class ResourceManager {
     if (preload) {
       element.addEventListener('canplaythrough', this.handleMediaProgress(name));
       element.onerror = (errorEvent: ErrorEvent) => {
+        this.resources[name].progress = 1;
         this.onError(errorEvent.error, name);
       };
       element.muted = true;
@@ -179,7 +181,9 @@ export default class ResourceManager {
 
   private handleOnLoad = (name: string) => {
     if (!this.loaded) {
+      const progress = this.progress;
       this.onProgress(this.progress, name);
+      this.onComplete();
     } else {
       this.onProgress(1, name);
       this.onComplete();

@@ -1,6 +1,6 @@
 {
   "name": "res-manager",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "A class for better loading and managing resources.",
   "main": "index.js",
   "types": "index.d.ts",

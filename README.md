@@ -36,14 +36,14 @@ Main class for managing resources.
 
 |Method|Type|Description|
 |-|-|-|
-|constructor|() => void|Constructor function.|
-|registerOnProgress|(onProgress: (progress: number, string: string) => void) => void|Register an callback for progress.|
-|registerOnError|onError: (error: Error, current: string) => void) => void|Register an callback for error.|
-|registerOnComplete|onComplete: () => void) => void|Register an callback for completing.|
-|init|(list: IResourceEntry[], timeout?: number) => void|Initialize manager by new resources and timeout.|
-|load|(onProgress?: (progress: number, string: string) => void, onComplete?: () => void, onError?: (error: Error, current: string) => void) => void|Trigger loading, you can register callbacks here.|
+|constructor|() => ResourceManager|Constructor function.|
+|registerOnProgress|(onProgress: (progress: number, string: string) => ResourceManager) => void|Register an callback for progress.|
+|registerOnError|onError: (error: Error, current: string) => ResourceManager) => ResourceManager|Register an callback for error.|
+|registerOnComplete|onComplete: () => ResourceManager) => ResourceManager|Register an callback for completing.|
+|init|(list: IResourceEntry[], timeout?: number) => ResourceManager|Initialize manager by new resources and timeout.|
+|load|(onProgress?: (progress: number, string: string) => void, onComplete?: () => void, onError?: (error: Error, current: string) => void) => ResourceManager|Trigger loading, you can register callbacks here.|
 |getSrc|(name: string) => string|Get source by name.|
-|reset|() => void|Reset all options and state.|
+|reset|() => ResourceManager|Reset all options and state.|
 
 |Accessors|Type|Description|
 |-|-|-|

@@ -79,6 +79,7 @@ var ResourceManager = /** @class */ (function () {
                     _this.handleOnLoad(name);
                 };
                 element.onerror = function (errorEvent) {
+                    _this.resources[name].progress = 1;
                     _this.onError(errorEvent.error, name);
                 };
                 element.src = _this.resources[name].src;
@@ -104,6 +105,7 @@ var ResourceManager = /** @class */ (function () {
             if (preload) {
                 element.addEventListener('canplaythrough', _this.handleMediaProgress(name));
                 element.onerror = function (errorEvent) {
+                    _this.resources[name].progress = 1;
                     _this.onError(errorEvent.error, name);
                 };
                 element.muted = true;
@@ -142,7 +144,9 @@ var ResourceManager = /** @class */ (function () {
         }; };
         this.handleOnLoad = function (name) {
             if (!_this.loaded) {
+                var progress = _this.progress;
                 _this.onProgress(_this.progress, name);
+                _this.onComplete();
             }
             else {
                 _this.onProgress(1, name);
