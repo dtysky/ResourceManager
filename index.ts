@@ -63,6 +63,7 @@ export default class ResourceManager {
     const realList = this.resourceList.filter(item => item.preload);
     if (realList.length === 0) {
       this.loaded = true;
+      this.onProgress(1, null);
       this.onComplete();
       return this;
     }
@@ -183,7 +184,9 @@ export default class ResourceManager {
     if (!this.loaded) {
       const progress = this.progress;
       this.onProgress(this.progress, name);
-      this.onComplete();
+      if (progress === 1) {
+        this.onComplete();
+      }
     } else {
       this.onProgress(1, name);
       this.onComplete();
