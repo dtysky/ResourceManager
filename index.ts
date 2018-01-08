@@ -33,10 +33,14 @@ export default class ResourceManager {
     this.resourceList = list;
     this.timeout = timeout || 0;
     list.forEach(item => {
+      if (item.preload === undefined) {
+        item.preload = true;
+      }
       if (item.preload) {
         this.length += item.weight || 1;
       }
     });
+    return this;
   }
 
   public load = (
@@ -56,6 +60,13 @@ export default class ResourceManager {
       this.onError = onError;
     }
 
+    const realList = this.resourceList.filter(item => item.preload);
+    if (realList.length === 0) {
+      this.loaded = true;
+      this.onComplete();
+      return this;
+    }
+
     this.resourceList.forEach(item => {
       if (item.type === 'image') {
         this.loadImage(item);
@@ -63,17 +74,20 @@ export default class ResourceManager {
         this.loadMedia(item);
       }
     });
+
     if (this.timeout) {
       setTimeout(
         () => {
           if (!this.loaded) {
             this.loaded = true;
             this.onProgress(1, null);
+            this.onComplete();
           }
         },
         this.timeout
       );
     }
+    return this;
   }
 
   private loadImage = (resource: IResourceEntry) => {
@@ -92,11 +106,7 @@ export default class ResourceManager {
       const element = this.resources[name].element;
       element.onload = () => {
         this.resources[name].progress = 1;
-        if (!this.loaded) {
-          this.onProgress(this.progress, name);
-        } else {
-          this.onProgress(1, name);
-        }
+        this.handleOnLoad(name);
       };
       element.onerror = (errorEvent: ErrorEvent) => {
         this.onError(errorEvent.error, name);
@@ -154,12 +164,7 @@ export default class ResourceManager {
       } else {
         this.resources[name].progress = buffered / element.duration;
       }
-      if (!this.loaded) {
-        this.onProgress(this.progress, name);
-      } else {
-        this.onProgress(1, name);
-        this.onComplete();
-      }
+      this.handleOnLoad(name);
 
       element.currentTime = buffered;
       if (this.loaded || end) {
@@ -169,6 +174,15 @@ export default class ResourceManager {
       } else {
         element.play();
       }
+    }
+  }
+
+  private handleOnLoad = (name: string) => {
+    if (!this.loaded) {
+      this.onProgress(this.progress, name);
+    } else {
+      this.onProgress(1, name);
+      this.onComplete();
     }
   }
 
@@ -195,14 +209,17 @@ export default class ResourceManager {
 
   public registerOnProgress = (onProgress: (progress: number, string: string) => void) => {
     this.onProgress = onProgress;
+    return this;
   }
 
   public registerOnError = (onError: (error: Error, current: string) => void) => {
     this.onError = onError;
+    return this;
   }
 
   public registerOnComplete = (onComplete: () => void) => {
     this.onComplete = onComplete;
+    return this;
   }
 
   public get loadDone() {
@@ -223,5 +240,6 @@ export default class ResourceManager {
     this.onComplete = () => {};
     this.length = 0;
     this.loaded = false;
+    return this;
   }
 }
