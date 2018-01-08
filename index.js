@@ -39,6 +39,7 @@ var ResourceManager = /** @class */ (function () {
             var realList = _this.resourceList.filter(function (item) { return item.preload; });
             if (realList.length === 0) {
                 _this.loaded = true;
+                _this.onProgress(1, null);
                 _this.onComplete();
                 return _this;
             }
@@ -146,7 +147,9 @@ var ResourceManager = /** @class */ (function () {
             if (!_this.loaded) {
                 var progress = _this.progress;
                 _this.onProgress(_this.progress, name);
-                _this.onComplete();
+                if (progress === 1) {
+                    _this.onComplete();
+                }
             }
             else {
                 _this.onProgress(1, name);
