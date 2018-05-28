@@ -77,14 +77,18 @@ const resources: IResourceEntry = [
     weight: 1
   }
 ];
-resourceManager.load(
-  (progress, current) => {
-    console.log(current, progress);
-  },
-  (error, current) => {
-    console.log(error, progress);
-  }
-);
+
+// prepare hook functions
+const onComplete = () => console.log('onComplete')
+const onError = (err) => console.error('onError', err)
+const onProgress = (progress) => console.info('onProgess', progress)
+
+resourceManager.registerOnComplete(onComplete);
+resourceManager.registerOnError(onError);
+resourceManager.registerOnProgress(onProgress);
+
+resourceManager.init(resources, 8000);
+
 const imgSrc = resourceManager.getSrc('H光大小姐');
 ```
 
